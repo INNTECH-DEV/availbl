@@ -1,5 +1,7 @@
 "use client";
 
+import { redirect } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
 import firebase from "../../firebase/firebaseClient";
 
 export default function Page() {
@@ -8,15 +10,30 @@ export default function Page() {
       .auth()
       .signInWithPopup(new firebase.auth.GoogleAuthProvider());
 
-    // Create a document inside the users collection with the name of the uid of the user
-    firebase.firestore().collection("users").doc(userCredentials.user.uid).set({
-      uid: userCredentials.user.uid,
-      email: userCredentials.user.email,
-      name: userCredentials.user.displayName,
-      provider: userCredentials.user.providerData[0].providerId,
-      photoUrl: userCredentials.user.photoURL,
-    });
+    // check if user exists in firestore collection before adding
+    const userRef = firebase
+      .firestore()
+      .collection("users")
+      .doc(userCredentials.user.uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      await userRef.set({
+        uid: userCredentials.user.uid,
+        email: userCredentials.user.email,
+        name: userCredentials.user.displayName,
+        provider: userCredentials.user.providerData[0].providerId,
+        photoUrl: userCredentials.user.photoURL,
+        url: userCredentials.user.displayName,
+      });
+    }
   }
+
+  const [user, userLoading] = useAuthState(firebase.auth());
+
+  if (user) {
+    redirect("/");
+  }
+
   return (
     <>
       <div className="flex h-screen flex-col justify-center py-12 sm:px-6 lg:px-8">
