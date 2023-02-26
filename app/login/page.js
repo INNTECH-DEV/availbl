@@ -23,7 +23,9 @@ export default function Page() {
         name: userCredentials.user.displayName,
         provider: userCredentials.user.providerData[0].providerId,
         photoUrl: userCredentials.user.photoURL,
-        url: userCredentials.user.displayName,
+        url: "",
+        about: "",
+        status: "",
       });
     }
   }

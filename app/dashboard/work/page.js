@@ -1,16 +1,18 @@
 "use client";
 
 import Header from "@/components/Header";
+import { MultipleInput } from "@/components/MultipleInput";
 import { countries } from "@/utils/countries";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import firebase from "../../firebase/firebaseClient";
-import Loading from "../loading";
+import firebase from "../../../firebase/firebaseClient";
+import Loading from "../../loading";
 
 export default function Page() {
   const [user, userLoading] = useAuthState(firebase.auth());
   const [extendedUser, setExtendeduser] = useState(null);
+  const [socialLinks, setSocialLinks] = useState([]);
 
   // If the user is not logged in, redirect to the login page
   useEffect(() => {
@@ -19,7 +21,8 @@ export default function Page() {
     }
   }, []);
 
-  // Create a document inside the users collection with the name of the uid of the user
+  // get the work field from the user
+  // if the user does not have a work field, create one
   useEffect(() => {
     if (user) {
       firebase
@@ -28,7 +31,35 @@ export default function Page() {
         .doc(user.uid)
         .get()
         .then((doc) => {
-          setExtendeduser(doc.data());
+          if (doc.exists) {
+            if (doc.data().work) {
+              setExtendeduser(doc.data().work);
+            } else {
+              firebase
+                .firestore()
+                .collection("users")
+                .doc(user.uid)
+                .set(
+                  {
+                    work: {},
+                  },
+                  { merge: true }
+                )
+                .then(() => {
+                  console.log("Document successfully written!");
+                })
+                .catch((error) => {
+                  console.error("Error writing document: ", error);
+                });
+              setExtendeduser({});
+            }
+          } else {
+            // doc.data() will be undefined in this case
+            console.log("No such document!");
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
         });
     }
   }, [user]);
@@ -39,69 +70,15 @@ export default function Page() {
     console.log(extendedUser);
   };
 
-  // a function that send the state and save it in firestore
+  // a function that receive the event and submit the form
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // before adding the user to the database, we need to check if the url is already taken by another user
-    // if it is, we need to show an error message
-    // if it is not, we can add the user to the database
-    firebase
-
-      .firestore()
-      .collection("users")
-      .where("username", "==", extendedUser.username)
-      .get()
-      .then((querySnapshot) => {
-        if (querySnapshot.size === 0) {
-          firebase
-            .firestore()
-            .collection("users")
-            .doc(user.uid)
-            .set(extendedUser, { merge: true })
-            .then(() => {
-              console.log("Document successfully written!");
-            })
-            .catch((error) => {
-              console.error("Error writing document: ", error);
-            });
-        } else {
-          // check if querysnapshot contains the current user
-          // if it does, we can update the document
-          // if it does not, we need to show an error message
-          querySnapshot.forEach((doc) => {
-            if (doc.id === user.uid) {
-              firebase
-                .firestore()
-                .collection("users")
-                .doc(user.uid)
-                .set(extendedUser, { merge: true })
-                .then(() => {
-                  console.log("Document successfully written!");
-                })
-                .catch((error) => {
-                  console.error("Error writing document: ", error);
-                });
-            } else {
-              console.log("url already taken");
-            }
-          });
-        }
-      });
-  };
-
-  // create a function for uploading the image to firebase storage
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    const storageRef = firebase.storage().ref();
-    const fileRef = storageRef.child(file.name);
-    fileRef.put(file).then(() => {
-      // get download url of the file
-      fileRef.getDownloadURL().then((url) => {
-        // update the state with the new url
-        setExtendeduser({ ...extendedUser, profile_image: url });
-      });
-    });
+    firebase.firestore().collection("users").doc(user.uid).set(
+      {
+        work: extendedUser,
+      },
+      { merge: true }
+    );
   };
 
   return (
@@ -118,7 +95,7 @@ export default function Page() {
                 <div className="space-y-6 sm:space-y-5">
                   <div>
                     <h3 className="text-lg font-medium leading-6 text-gray-900">
-                      Profile
+                      Work
                     </h3>
                     <p className="mt-1 max-w-2xl text-sm text-gray-500">
                       This information will be displayed publicly so be careful
@@ -129,175 +106,28 @@ export default function Page() {
                   <div className="space-y-6 sm:space-y-5">
                     <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                       <label
-                        htmlFor="username"
+                        htmlFor="industry"
                         className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
                       >
-                        Username
-                      </label>
-                      <div className="mt-1 sm:col-span-2 sm:mt-0">
-                        <div className="flex max-w-lg rounded-md shadow-sm">
-                          <span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
-                            workcation.com/
-                          </span>
-                          <input
-                            type="text"
-                            name="username"
-                            id="username"
-                            autoComplete="username"
-                            value={extendedUser.username}
-                            onChange={handleChange}
-                            className="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                      <label
-                        htmlFor="long_description"
-                        className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                      >
-                        About (Long Description)
-                      </label>
-                      <div className="mt-1 sm:col-span-2 sm:mt-0">
-                        <textarea
-                          id="long_description"
-                          name="long_description"
-                          rows={4}
-                          className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          value={extendedUser.long_description}
-                          onChange={handleChange}
-                        />
-                        <p className="mt-2 text-sm text-gray-500">
-                          Write a few sentences about yourself.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                      <label
-                        htmlFor="short_description"
-                        className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                      >
-                        About (Short Description)
-                      </label>
-                      <div className="mt-1 sm:col-span-2 sm:mt-0">
-                        <textarea
-                          id="short_description"
-                          name="short_description"
-                          rows={2}
-                          className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          value={extendedUser.short_description}
-                          onChange={handleChange}
-                        />
-                        <p className="mt-2 text-sm text-gray-500">
-                          Write a few sentences about yourself.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                      <label
-                        htmlFor="tags"
-                        className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                      >
-                        Profile tags (delimited by comma)
+                        Industry
                       </label>
                       <div className="mt-1 sm:col-span-2 sm:mt-0">
                         <input
                           type="text"
-                          name="tags"
-                          id="tags"
-                          autoComplete="tags"
-                          value={extendedUser.tags}
+                          name="industry"
+                          id="industry"
+                          autoComplete="industry"
+                          value={extendedUser.industry}
                           onChange={handleChange}
                           className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="sm:grid sm:grid-cols-3 sm:items-center sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                      <label
-                        htmlFor="photo"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Photo
-                      </label>
-                      <div className="mt-1 sm:col-span-2 sm:mt-0">
-                        <div className="flex items-center">
-                          <span className="h-12 w-12 overflow-hidden rounded-full bg-gray-100">
-                            <svg
-                              className="h-full w-full text-gray-300"
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                          </span>
-                          <button
-                            type="button"
-                            className="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                          >
-                            Change
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                      <label
-                        htmlFor="cover-photo"
-                        className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                      >
-                        Cover photo
-                      </label>
-                      <div className="mt-1 sm:col-span-2 sm:mt-0">
-                        <div className="flex max-w-lg justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
-                          <div className="space-y-1 text-center">
-                            <svg
-                              className="mx-auto h-12 w-12 text-gray-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                              aria-hidden="true"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth={2}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="flex text-sm text-gray-600">
-                              <label
-                                htmlFor="profile_image"
-                                className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
-                              >
-                                <span>Upload a file</span>
-                                <input
-                                  id="profile_image"
-                                  name="profile_image"
-                                  type="file"
-                                  className="sr-only"
-                                  onChange={handleImageUpload}
-                                />
-                              </label>
-                              <p className="pl-1">or drag and drop</p>
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              PNG, JPG, GIF up to 10MB
-                            </p>
-                          </div>
-                        </div>
-                        <img
-                          src={extendedUser.profile_image}
-                          className="mt-4"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
 
+                <MultipleInput state={socialLinks} setState={setSocialLinks} />
+                {/* 
                 <div className="space-y-6 pt-8 sm:space-y-5 sm:pt-10">
                   <div>
                     <h3 className="text-lg font-medium leading-6 text-gray-900">
@@ -454,9 +284,9 @@ export default function Page() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
-                <div className="space-y-6 divide-y divide-gray-200 pt-8 sm:space-y-5 sm:pt-10">
+                {/* <div className="space-y-6 divide-y divide-gray-200 pt-8 sm:space-y-5 sm:pt-10">
                   <div>
                     <h3 className="text-lg font-medium leading-6 text-gray-900">
                       Notifications
@@ -618,7 +448,7 @@ export default function Page() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <div className="pt-5">
