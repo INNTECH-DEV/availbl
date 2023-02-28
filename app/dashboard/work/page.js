@@ -1,18 +1,25 @@
 "use client";
 
 import Header from "@/components/Header";
-import { MultipleInput } from "@/components/MultipleInput";
+import { MultipleInput } from "@/components/dashboard/work/MultipleInput";
 import { countries } from "@/utils/countries";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import firebase from "../../../firebase/firebaseClient";
 import Loading from "../../loading";
+import { Switch } from "@headlessui/react";
+import { classNames } from "@/utils/utils";
+import { MultipleInputPastWork } from "@/components/dashboard/work/MultipleInputPastWork";
+import { MultipleInputSocial } from "@/components/dashboard/work/MultipleInputSocial";
 
 export default function Page() {
   const [user, userLoading] = useAuthState(firebase.auth());
   const [extendedUser, setExtendeduser] = useState(null);
-  const [socialLinks, setSocialLinks] = useState([]);
+  const [socialLinks, setSocialLinks] = useState([{ platform: "", link: "" }]);
+  const [pastWork, setPastWork] = useState([
+    { company: "", period: "", position: "" },
+  ]);
 
   // If the user is not logged in, redirect to the login page
   useEffect(() => {
@@ -20,6 +27,13 @@ export default function Page() {
       redirect("/login");
     }
   }, []);
+
+  useEffect(() => {
+    if (extendedUser) {
+      setPastWork(extendedUser.past_work);
+      setSocialLinks(extendedUser.social_links);
+    }
+  }, [extendedUser]);
 
   // get the work field from the user
   // if the user does not have a work field, create one
@@ -70,9 +84,24 @@ export default function Page() {
     console.log(extendedUser);
   };
 
+  // a function that receive name and value and modify the state
+  const handleHire = (e) => {
+    setExtendeduser({
+      ...extendedUser,
+      ["available_to_hire"]: !extendedUser.available_to_hire,
+    });
+    console.log(extendedUser);
+  };
+
   // a function that receive the event and submit the form
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // add pastwork to the extendedUser object
+    extendedUser.past_work = pastWork;
+    // add social links to the extendedUser object
+    extendedUser.social_links = socialLinks;
+
     firebase.firestore().collection("users").doc(user.uid).set(
       {
         work: extendedUser,
@@ -117,6 +146,7 @@ export default function Page() {
                           name="industry"
                           id="industry"
                           autoComplete="industry"
+                          placeholder="Web Development"
                           value={extendedUser.industry}
                           onChange={handleChange}
                           className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm"
@@ -124,9 +154,86 @@ export default function Page() {
                       </div>
                     </div>
                   </div>
+
+                  <div className="space-y-6 sm:space-y-5">
+                    <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                      <label
+                        htmlFor="current_position"
+                        className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
+                      >
+                        Your current position
+                      </label>
+                      <div className="mt-1 sm:col-span-2 sm:mt-0">
+                        <input
+                          type="text"
+                          name="current_position"
+                          id="current_position"
+                          autoComplete="current_position"
+                          placeholder="Senior Front-End Developer"
+                          value={extendedUser.current_position}
+                          onChange={handleChange}
+                          className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6 sm:space-y-5">
+                    <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5"></div>
+                    <Switch.Group
+                      as="div"
+                      className="flex items-center justify-between"
+                    >
+                      <span className="flex flex-grow flex-col">
+                        <Switch.Label
+                          as="span"
+                          className="text-sm font-medium text-gray-900"
+                          passive
+                        >
+                          Available to hire
+                        </Switch.Label>
+                        <Switch.Description
+                          as="span"
+                          className="text-sm text-gray-500"
+                        >
+                          Nulla amet tempus sit accumsan. Aliquet turpis sed sit
+                          lacinia.
+                        </Switch.Description>
+                      </span>
+                      <Switch
+                        checked={extendedUser.available_to_hire}
+                        onChange={handleHire}
+                        id="available_to_hire"
+                        className={classNames(
+                          extendedUser.available_to_hire
+                            ? "bg-indigo-600"
+                            : "bg-gray-200",
+                          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        )}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={classNames(
+                            extendedUser.available_to_hire
+                              ? "translate-x-5"
+                              : "translate-x-0",
+                            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          )}
+                        />
+                      </Switch>
+                    </Switch.Group>
+                  </div>
                 </div>
 
-                <MultipleInput state={socialLinks} setState={setSocialLinks} />
+                <MultipleInputPastWork
+                  formValues={pastWork}
+                  setFormValues={setPastWork}
+                />
+
+                <MultipleInputSocial
+                  formValues={socialLinks}
+                  setFormValues={setSocialLinks}
+                />
                 {/* 
                 <div className="space-y-6 pt-8 sm:space-y-5 sm:pt-10">
                   <div>
