@@ -137,7 +137,7 @@ export default function Page() {
                       <div className="mt-1 sm:col-span-2 sm:mt-0">
                         <div className="flex max-w-lg rounded-md shadow-sm">
                           <span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
-                            workcation.com/
+                            availbl.io/
                           </span>
                           <input
                             type="text"
@@ -198,6 +198,26 @@ export default function Page() {
 
                     <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                       <label
+                        htmlFor="headline"
+                        className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
+                      >
+                        Headline
+                      </label>
+                      <div className="mt-1 sm:col-span-2 sm:mt-0">
+                        <input
+                          type="text"
+                          name="headline"
+                          id="headline"
+                          autoComplete="headline"
+                          value={extendedUser.headline}
+                          onChange={handleChange}
+                          className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                      <label
                         htmlFor="tags"
                         className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
                       >
@@ -225,7 +245,13 @@ export default function Page() {
                       </label>
                       <div className="mt-1 sm:col-span-2 sm:mt-0">
                         <div className="flex items-center">
-                          <span className="h-12 w-12 overflow-hidden rounded-full bg-gray-100">
+                          {/* <span className="h-12 w-12 overflow-hidden rounded-full bg-gray-100"> */}
+                          {extendedUser.profile_image ? ( // if there is a profile image, show it
+                            <img
+                              src={extendedUser.profile_image}
+                              className="h-28 w-28 overflow-hidden rounded-full bg-gray-100 object-cover"
+                            />
+                          ) : (
                             <svg
                               className="h-full w-full text-gray-300"
                               fill="currentColor"
@@ -233,17 +259,30 @@ export default function Page() {
                             >
                               <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
-                          </span>
+                          )}
+                          {/* </span> */}
                           <button
                             type="button"
                             className="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                           >
-                            Change
+                            <label
+                              htmlFor="profile_image"
+                              className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                            >
+                              <span>Upload profile picture</span>
+                              <input
+                                id="profile_image"
+                                name="profile_image"
+                                type="file"
+                                className="sr-only"
+                                onChange={handleImageUpload}
+                              />
+                            </label>
                           </button>
                         </div>
                       </div>
                     </div>
-
+                    {/* 
                     <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                       <label
                         htmlFor="cover-photo"
@@ -294,7 +333,7 @@ export default function Page() {
                           className="mt-4"
                         />
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

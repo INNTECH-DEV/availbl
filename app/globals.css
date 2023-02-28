@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes marquee {
+    0% {
+      left: 100%;
+    }
+    100% {
+      left: -100%
+    }
+  }
+
+  /* TO DO: DE ADAUGAT GALERIE CALUMEA */
+  .horizontal-gallery div {
+    /* animation: marquee 30s linear infinite; */
+  }
+  

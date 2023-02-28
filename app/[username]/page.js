@@ -1,3 +1,6 @@
+import { Gallery } from "@/components/templates/template1/Gallery";
+import { Hero } from "@/components/templates/template1/Hero";
+import { Layout } from "@/components/templates/template1/Layout";
 import { redirect } from "next/navigation";
 
 async function getPage(username) {
@@ -15,7 +18,9 @@ export default async function Page({ params }) {
   const page = await getPage(params.username);
   return (
     <div>
-      <div>{page && JSON.stringify(page)}</div>
+      <Layout page={page} />
+      <Hero page={page} />
+      <Gallery page={page} />
     </div>
   );
 }

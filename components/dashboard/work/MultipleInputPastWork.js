@@ -108,9 +108,6 @@ export const MultipleInputPastWork = ({ formValues, setFormValues }) => {
         >
           Add
         </button>
-        <button className="button submit" type="submit">
-          Submit
-        </button>
       </div>
     </div>
   );

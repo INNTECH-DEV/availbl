@@ -1,11 +1,10 @@
 "use client";
 
+import { currencies } from "@/utils/currencies";
 import { socialPlatforms } from "@/utils/utils";
 import React, { useState } from "react";
 
-export const MultipleInputSocial = ({ formValues, setFormValues }) => {
-  console.log(formValues);
-
+export const MultipleInpuPricing = ({ formValues, setFormValues }) => {
   const handleChange = (i, e) => {
     const newFormValues = [...formValues];
     newFormValues[i][e.target.name] = e.target.value;
@@ -15,7 +14,7 @@ export const MultipleInputSocial = ({ formValues, setFormValues }) => {
   const addFormFields = () => {
     setFormValues([
       ...formValues,
-      { platform: socialPlatforms[0].name, link: "" },
+      { currency: currencies[0].cc, title: "", price: 0 },
     ]);
   };
 
@@ -23,11 +22,6 @@ export const MultipleInputSocial = ({ formValues, setFormValues }) => {
     const newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert(JSON.stringify(formValues));
   };
 
   return (
@@ -39,39 +33,61 @@ export const MultipleInputSocial = ({ formValues, setFormValues }) => {
         >
           <div className="sm:col-span-2">
             <label
-              htmlFor="platform"
+              htmlFor="currency"
               className="block text-sm font-medium text-gray-700"
             >
-              Platform
+              Currency
             </label>
             <div className="mt-1">
               <select
-                id="platform"
-                name="platform"
-                value={element.platform || ""}
-                defaultValue={element.platform || socialPlatforms[0].name}
+                id="currency"
+                name="currency"
+                value={element.currency || ""}
+                // defaultValue={element.currency || currencies[0].name}
                 onChange={(e) => handleChange(index, e)}
                 className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm"
               >
-                {socialPlatforms.map((social) => {
-                  return <option key={social.name}>{social.name}</option>;
+                {currencies.map((currency) => {
+                  return (
+                    <option key={currency.cc}>
+                      {currency.cc} ({currency.name})
+                    </option>
+                  );
                 })}
               </select>
             </div>
           </div>
           <div className="sm:col-span-2">
             <label
-              htmlFor="link"
+              htmlFor="title"
               className="block text-sm font-medium text-gray-700"
             >
-              Link
+              Title
             </label>
             <div className="mt-1">
               <input
-                type="url"
-                name="link"
-                id="link"
-                value={element.link || ""}
+                type="text"
+                name="title"
+                id="title"
+                value={element.title || ""}
+                onChange={(e) => handleChange(index, e)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div className="sm:col-span-2">
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Price
+            </label>
+            <div className="mt-1">
+              <input
+                type="text"
+                name="price"
+                id="price"
+                value={element.price || ""}
                 onChange={(e) => handleChange(index, e)}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />

@@ -1,8 +1,6 @@
 "use client";
 
 import Header from "@/components/Header";
-import { MultipleInput } from "@/components/dashboard/work/MultipleInput";
-import { countries } from "@/utils/countries";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -12,6 +10,7 @@ import { Switch } from "@headlessui/react";
 import { classNames } from "@/utils/utils";
 import { MultipleInputPastWork } from "@/components/dashboard/work/MultipleInputPastWork";
 import { MultipleInputSocial } from "@/components/dashboard/work/MultipleInputSocial";
+import { MultipleInputArticles } from "@/components/dashboard/work/MultipleInputArticles";
 
 export default function Page() {
   const [user, userLoading] = useAuthState(firebase.auth());
@@ -19,6 +18,12 @@ export default function Page() {
   const [socialLinks, setSocialLinks] = useState([{ platform: "", link: "" }]);
   const [pastWork, setPastWork] = useState([
     { company: "", period: "", position: "" },
+  ]);
+  const [pricing, setPricing] = useState([
+    { currency: "", title: "", price: 0 },
+  ]);
+  const [articles, setArticles] = useState([
+    { title: "", link: "", excerpt: "", date: "" },
   ]);
 
   // If the user is not logged in, redirect to the login page
@@ -30,8 +35,21 @@ export default function Page() {
 
   useEffect(() => {
     if (extendedUser) {
-      setPastWork(extendedUser.past_work);
-      setSocialLinks(extendedUser.social_links);
+      if (extendedUser.past_work) {
+        setPastWork(extendedUser.past_work);
+      }
+
+      if (extendedUser.social_links) {
+        setSocialLinks(extendedUser.social_links);
+      }
+
+      if (extendedUser.pricing) {
+        setPricing(extendedUser.pricing);
+      }
+
+      if (extendedUser.articles) {
+        setArticles(extendedUser.articles);
+      }
     }
   }, [extendedUser]);
 
@@ -99,8 +117,15 @@ export default function Page() {
 
     // add pastwork to the extendedUser object
     extendedUser.past_work = pastWork;
+
     // add social links to the extendedUser object
     extendedUser.social_links = socialLinks;
+
+    // add pricing to the extendedUser object
+    extendedUser.pricing = pricing;
+
+    // add articles to the extendedUser object
+    extendedUser.articles = articles;
 
     firebase.firestore().collection("users").doc(user.uid).set(
       {
@@ -234,6 +259,16 @@ export default function Page() {
                   formValues={socialLinks}
                   setFormValues={setSocialLinks}
                 />
+
+                <MultipleInputArticles
+                  formValues={articles}
+                  setFormValues={setArticles}
+                />
+
+                {/* <MultipleInpuPricing
+                  formValues={pricing}
+                  setFormValues={setPricing}
+                /> */}
                 {/* 
                 <div className="space-y-6 pt-8 sm:space-y-5 sm:pt-10">
                   <div>
