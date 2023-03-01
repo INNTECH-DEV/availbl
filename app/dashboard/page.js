@@ -1,5 +1,6 @@
 "use client";
 
+import Dashboard from "@/components/dashboard/Dashboard";
 import Header from "@/components/Header";
 import { countries } from "@/utils/countries";
 import { redirect } from "next/navigation";
@@ -105,11 +106,10 @@ export default function Page() {
   };
 
   return (
-    <>
+    <Dashboard user={user} extendedUser={extendedUser}>
       {extendedUser ? (
         <>
-          <Header user={user} />
-          <div className="mx-auto max-w-6xl my-8">
+          <div className="mx-auto max-w-6xl my-8 px-4 pb-12">
             <form
               className="space-y-8 divide-y divide-gray-200"
               onSubmit={handleSubmit}
@@ -357,7 +357,7 @@ export default function Page() {
                       <div className="mt-1 sm:col-span-2 sm:mt-0">
                         <input
                           type="text"
-                          name="ffirst_name"
+                          name="first_name"
                           id="first_name"
                           autoComplete="first_name"
                           value={extendedUser.first_name}
@@ -495,7 +495,7 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="space-y-6 divide-y divide-gray-200 pt-8 sm:space-y-5 sm:pt-10">
+                {/* <div className="space-y-6 divide-y divide-gray-200 pt-8 sm:space-y-5 sm:pt-10">
                   <div>
                     <h3 className="text-lg font-medium leading-6 text-gray-900">
                       Notifications
@@ -657,10 +657,10 @@ export default function Page() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
-              <div className="pt-5">
+              <div className="pt-5 fixed bottom-4">
                 <div className="flex justify-end">
                   <button
                     type="button"
@@ -682,6 +682,6 @@ export default function Page() {
       ) : (
         <Loading />
       )}
-    </>
+    </Dashboard>
   );
 }

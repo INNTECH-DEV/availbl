@@ -28,12 +28,21 @@ export const MultipleInputPastWork = ({ formValues, setFormValues }) => {
 
   return (
     <div>
+      <div className="pt-6">
+        <h3 className="text-lg font-medium leading-6 text-gray-900">
+          Past Work
+        </h3>
+        <p className="mt-1 max-w-2xl text-sm text-gray-500">
+          This information will be displayed publicly so be careful what you
+          share.
+        </p>
+      </div>
       {formValues.map((element, index) => (
         <div
-          className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6"
+          className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-4"
           key={index}
         >
-          <div className="sm:col-span-2">
+          <div>
             <label
               htmlFor="company"
               className="block text-sm font-medium text-gray-700"
@@ -51,7 +60,7 @@ export const MultipleInputPastWork = ({ formValues, setFormValues }) => {
               />
             </div>
           </div>
-          <div className="sm:col-span-2">
+          <div>
             <label
               htmlFor="period"
               className="block text-sm font-medium text-gray-700"
@@ -69,7 +78,7 @@ export const MultipleInputPastWork = ({ formValues, setFormValues }) => {
               />
             </div>
           </div>
-          <div className="sm:col-span-2">
+          <div>
             <label
               htmlFor="position"
               className="block text-sm font-medium text-gray-700"
@@ -89,24 +98,26 @@ export const MultipleInputPastWork = ({ formValues, setFormValues }) => {
           </div>
 
           {index ? (
-            <button
-              type="button"
-              className="sm:col-span-3"
-              onClick={() => removeFormFields(index)}
-            >
-              Remove
-            </button>
+            <div>
+              <button
+                type="button"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-4"
+                onClick={() => removeFormFields(index)}
+              >
+                Remove
+              </button>
+            </div>
           ) : null}
         </div>
       ))}
 
       <div className="button-section">
         <button
-          className="button add"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-4 mt-4"
           type="button"
           onClick={() => addFormFields()}
         >
-          Add
+          Add new past work
         </button>
       </div>
     </div>

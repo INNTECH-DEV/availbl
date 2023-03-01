@@ -32,12 +32,21 @@ export const MultipleInputSocial = ({ formValues, setFormValues }) => {
 
   return (
     <div>
+      <div className="pt-6">
+        <h3 className="text-lg font-medium leading-6 text-gray-900">
+          Social media platforms
+        </h3>
+        <p className="mt-1 max-w-2xl text-sm text-gray-500">
+          This information will be displayed publicly so be careful what you
+          share.
+        </p>
+      </div>
       {formValues.map((element, index) => (
         <div
-          className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6"
+          className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-3"
           key={index}
         >
-          <div className="sm:col-span-2">
+          <div>
             <label
               htmlFor="platform"
               className="block text-sm font-medium text-gray-700"
@@ -59,7 +68,7 @@ export const MultipleInputSocial = ({ formValues, setFormValues }) => {
               </select>
             </div>
           </div>
-          <div className="sm:col-span-2">
+          <div>
             <label
               htmlFor="link"
               className="block text-sm font-medium text-gray-700"
@@ -81,7 +90,7 @@ export const MultipleInputSocial = ({ formValues, setFormValues }) => {
           {index ? (
             <button
               type="button"
-              className="sm:col-span-3"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-4"
               onClick={() => removeFormFields(index)}
             >
               Remove
@@ -92,11 +101,11 @@ export const MultipleInputSocial = ({ formValues, setFormValues }) => {
 
       <div className="button-section">
         <button
-          className="button add"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-4 mt-4"
           type="button"
           onClick={() => addFormFields()}
         >
-          Add
+          Add new social media
         </button>
       </div>
     </div>
